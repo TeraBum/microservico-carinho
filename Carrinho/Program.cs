@@ -1,12 +1,17 @@
 using System.Text;
+using Carrinho;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-Console.WriteLine(builder.Configuration["Jwt:Key"]);
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddDbContext<CartDb>(opt => opt.UseNpgsql("Host=db.smjdaavxsnbmrdrvejsu.supabase.co;Port=5432;Database=postgres;Username=postgres;Password=P@uc2025"));
+builder.Services.AddDbContext<UserDb>(opt => opt.UseNpgsql("Host=db.smjdaavxsnbmrdrvejsu.supabase.co;Port=5432;Database=postgres;Username=postgres;Password=P@uc2025"));
 builder.Services.AddAuthentication().AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
@@ -36,21 +41,28 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var cart = app.MapGroup("/cart");
+var cartMapping = app.MapGroup("/cart");
 
-cart.MapGet("/", (context) =>
+cartMapping.MapGet("/", async (HttpContext context, UserDb userDb, CartDb cartDb) =>
 {
     var email = context.User.FindFirst("Email")?.Value;
-    if (email is not null)
-    {
-        return context.Response.WriteAsync(email);
-    }
-    return context.Response.WriteAsync("Hello World!");
+    if (string.IsNullOrEmpty(email))
+        return Results.Unauthorized();
+    var user = await userDb.Users.Where(u => u.Email == email).FirstAsync();
+    if (user is null)
+        return Results.NotFound();
+    var cart = await cartDb.Cart.Where(c => c.Status == "Active").FirstOrDefaultAsync();
+    if (cart is null)
+        return Results.NoContent();
+    return Results.Ok(cart);
 }).RequireAuthorization("user_email");
 
-static async Task<IResult> getCart()
+cartMapping.MapGet("/me", getCart);
+
+static async Task<IResult> getCart(CartDb db)
 {
-    return TypedResults.Ok("Hello World");
+    var carts = await db.Cart.ToListAsync();
+    return TypedResults.Ok(carts);
 }
 
 static async Task<IResult> createCart()
