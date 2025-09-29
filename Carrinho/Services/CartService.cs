@@ -11,7 +11,7 @@ public class CartService
        _cartDb = cartDb;
     }
 
-    async Task<Cart> getCartIfExists(User user)
+    public async Task<Cart> getCartIfExists(User user)
     {
         var cart = await _cartDb.Cart.Where(c => c.Status == "Active" && c.UserId == user.Id).FirstOrDefaultAsync();
         if (cart is null)
@@ -19,7 +19,7 @@ public class CartService
         return cart;
     }
     
-    async Task<User> getUser(string email)
+    public async Task<User> getUser(string email)
     {
         var user = await _userDb.Users.Where(u => u.Email == email).FirstAsync();
         if (user is null)
@@ -27,7 +27,7 @@ public class CartService
         return user;
     }
 
-    async Task<Cart> createCartIfNotExist(Cart cart,  string email)
+    public async Task<Cart> createCartIfNotExist(Cart cart,  string email)
     {
         var user = await getUser(email);
         var oldCart = await this.getCartIfExists(user);
@@ -40,7 +40,7 @@ public class CartService
         return cart;
     }
 
-    async Task<Cart> cancelCartIfExist(string email)
+    public async Task<Cart> cancelCartIfExist(string email)
     {
         var user = await getUser(email);
         var oldCart = await this.getCartIfExists(user);
@@ -53,12 +53,16 @@ public class CartService
         return oldCart;
     }
 
-    async Task<Cart> addItemsToCart(CartItem[] cartItems, string cartId)
+    public async Task<Cart> addItemsToCart(CartItem[] cartItems, string cartId, string email)
     {
-        var cart = await _cartDb.Cart.FindAsync(cartId);
+        var user = getUser(email);
+        var cart = await _cartDb.Cart.Include(c => c.Items).Where(c => c.UserId == user.Id && c.Status == "Active").FirstAsync();
         if (cart is null)
             throw new KeyNotFoundException(cartId);
-        cart.Items.AddRange(cartItems);
+        if (cart.Items is not null)
+            cart.Items.AddRange(cartItems);
+        else
+            cart.Items = new List<CartItem>(cartItems);
         await _cartDb.SaveChangesAsync();
         return cart;
     }
