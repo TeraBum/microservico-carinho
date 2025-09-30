@@ -9,14 +9,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9adab003-12a0-4dfa-96ee-5fdbc90bc31c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Carrinho.sln" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Carrinho/Carrinho.csproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Carrinho/Carrinho.http" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Carrinho/Program.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Carrinho/Properties/launchSettings.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Carrinho/appsettings.Development.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Carrinho/appsettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Carrinho/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Carrinho/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Carrinho/Carrinho.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Carrinho/Carrinho.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Carrinho/DTO/CartDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Carrinho/DTO/CartDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Carrinho/DTO/CartItemDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Carrinho/DTO/CartItemDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Carrinho/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Carrinho/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Carrinho/Services/CartService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Carrinho/Services/CartService.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,34 +27,46 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
-  <component name="KubernetesApiProvider"><![CDATA[{
-  "isMigrated": true
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 8
-}]]></component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Carrinho/DTO/CartDto.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Carrinho/DTO/CartItemDto.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Carrinho/Data/CartDb.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Carrinho/Data/UserDb.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Carrinho/Models/Cart.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Carrinho/Models/User.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Carrinho/Services/CartService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Carrinho/obj/Carrinho.csproj.nuget.dgspec.json" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Carrinho/obj/project.assets.json" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Carrinho/obj/project.packagespec.json" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
   <component name="ProjectId" id="33F0XmtdVvwCOWlJYV9fKmuOn8A" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    ".NET Launch Settings Profile.Carrinho: http.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;.NET Launch Settings Profile.Carrinho: http.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected=".NET Launch Settings Profile.Carrinho: http">
     <configuration name="Carrinho: http" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/Carrinho/Carrinho.csproj" />
@@ -98,7 +108,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758897556476</updated>
-      <workItem from="1758897558010" duration="11496000" />
+      <workItem from="1758897558010" duration="13918000" />
+      <workItem from="1758919401177" duration="33662000" />
     </task>
     <servers />
   </component>

@@ -1,11 +1,12 @@
 namespace Carrinho.Services;
 using Microsoft.EntityFrameworkCore;
+using Carrinho.DTO;
 
 public class CartService
 {
     private readonly UserDb _userDb;
     private readonly CartDb _cartDb;
-    CartService(UserDb userDb, CartDb cartDb)
+    public CartService(UserDb userDb, CartDb cartDb)
     {
        _userDb = userDb;
        _cartDb = cartDb;
@@ -13,7 +14,7 @@ public class CartService
 
     public async Task<Cart> getCartIfExists(User user)
     {
-        var cart = await _cartDb.Cart.Where(c => c.Status == "Active" && c.UserId == user.Id).FirstOrDefaultAsync();
+        var cart = await _cartDb.Cart.Include(c => c.Items).Where(c => c.Status == "Active" && c.UserId == user.Id).FirstOrDefaultAsync();
         if (cart is null)
             return null;
         return cart;
@@ -27,7 +28,7 @@ public class CartService
         return user;
     }
 
-    public async Task<Cart> createCartIfNotExist(Cart cart,  string email)
+    public async Task<Cart> createCartIfNotExist(CartDto cartDto,  string email)
     {
         var user = await getUser(email);
         var oldCart = await this.getCartIfExists(user);
@@ -35,6 +36,17 @@ public class CartService
         {
             throw new InvalidOperationException("Cart already exists");
         }
+        var cart = new Cart();
+        cart.Id = Guid.NewGuid();
+        cart.UserId = user.Id;
+        cart.Status = "Active";
+        cart.Items = cartDto.Items.Select(i => new CartItem
+        {
+            ProductId = i.ProductId,
+            Quantity = i.Quantity,
+            CartId = cart.Id,
+            UnitPrice = i.UnitPrice
+        }).ToList();
         _cartDb.Cart.Add(cart);
         await _cartDb.SaveChangesAsync();
         return cart;
@@ -46,23 +58,27 @@ public class CartService
         var oldCart = await this.getCartIfExists(user);
         if (oldCart is null)
         {
-            throw new InvalidOperationException("Cart already exists");
+            throw new InvalidOperationException("No active cart found.");
         }
         oldCart.Status = "Cancelled";
         await _cartDb.SaveChangesAsync();
         return oldCart;
     }
 
-    public async Task<Cart> addItemsToCart(CartItem[] cartItems, string cartId, string email)
+    public async Task<Cart> addItemsToCart(CartItemDto[] cartItems, string email)
     {
-        var user = getUser(email);
-        var cart = await _cartDb.Cart.Include(c => c.Items).Where(c => c.UserId == user.Id && c.Status == "Active").FirstAsync();
+        var user = await getUser(email);
+        var cart = await getCartIfExists(user);
         if (cart is null)
-            throw new KeyNotFoundException(cartId);
-        if (cart.Items is not null)
-            cart.Items.AddRange(cartItems);
-        else
-            cart.Items = new List<CartItem>(cartItems);
+            throw new KeyNotFoundException("No active cart found.");
+        var newCartItems = cartItems.Select(i => new CartItem
+        {
+            CartId = cart.Id,
+            UnitPrice = i.UnitPrice,
+            Quantity = i.Quantity,
+            ProductId = i.ProductId,
+        }).ToList();
+        cart.Items = newCartItems;
         await _cartDb.SaveChangesAsync();
         return cart;
     }
