@@ -11,14 +11,24 @@ using Swashbuckle.AspNetCore.Swagger;
 
 using Microsoft.OpenApi.Models;
 
-var builder = WebApplication.CreateBuilder(args);
+DotNetEnv.Env.Load();
 
+var config =
+    new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", true)
+        .AddEnvironmentVariables()
+        .Build();
+
+var builder = WebApplication.CreateBuilder(args);
+var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") ??
+                       builder.Configuration.GetConnectionString("DefaultConnection");
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-builder.Services.AddDbContext<CartDb>(opt => opt.UseNpgsql("Host=db.smjdaavxsnbmrdrvejsu.supabase.co;Port=5432;Database=postgres;Username=postgres;Password=P@uc2025"));
-builder.Services.AddDbContext<UserDb>(opt => opt.UseNpgsql("Host=db.smjdaavxsnbmrdrvejsu.supabase.co;Port=5432;Database=postgres;Username=postgres;Password=P@uc2025"));
+builder.Services.AddDbContext<CartDb>(opt => opt.UseNpgsql(connectionString));
+builder.Services.AddDbContext<UserDb>(opt => opt.UseNpgsql(connectionString));
 builder.Services.AddAuthentication().AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
@@ -77,8 +87,6 @@ builder.Services.AddOpenApi(options =>
 
 var app = builder.Build();
 
-
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -109,7 +117,7 @@ static async Task<IResult> getCart(HttpContext context, CartService cartService)
     {
         var user = await cartService.getUser(email);
         var cart = await cartService.getCartIfExists(user);
-        if (cart == null)
+        if (cart is null)
             return TypedResults.NoContent();
         return TypedResults.Ok(cart);
     }
@@ -117,8 +125,8 @@ static async Task<IResult> getCart(HttpContext context, CartService cartService)
     {
         if (ex is KeyNotFoundException)
             return TypedResults.NotFound("User not found");
+        return TypedResults.InternalServerError(ex.Message);
     }
-    return TypedResults.InternalServerError();
 }
 
 //Two exceptions might happen inside which might be handled by a middleware
