@@ -5,6 +5,7 @@ using Carrinho.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
 using Npgsql.EntityFrameworkCore;
 using Swashbuckle.AspNetCore;
 using Swashbuckle.AspNetCore.Swagger;
@@ -42,8 +43,13 @@ builder.Services.AddAuthentication().AddJwtBearer(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
 });
+builder.Services.AddHttpClient("OrderService", httpClient =>
+{
+    httpClient.BaseAddress = new Uri("http://localhost:3004/order"); //might have to change this later
 
-
+    httpClient.DefaultRequestHeaders.Add(
+        HeaderNames.Accept, "application/json");
+});
 builder.Services.AddScoped<CartService>();
 
 builder.Services.AddAuthorizationBuilder()
@@ -107,6 +113,7 @@ cartMapping.MapGet("/", GetCart).RequireAuthorization("user_email");
 cartMapping.MapPost("/", CreateCart).RequireAuthorization("user_email");
 cartMapping.MapPatch("/cart-items", AddToCart).RequireAuthorization("user_email");
 cartMapping.MapPatch("/cancel", CancelCart).RequireAuthorization("user_email");
+cartMapping.MapPost("/checkout", CheckOutCart).RequireAuthorization("user_email");
 
 static async Task<IResult> GetCart(HttpContext context, CartService cartService)
 {
@@ -118,7 +125,7 @@ static async Task<IResult> GetCart(HttpContext context, CartService cartService)
         var user = await cartService.getUser(email);
         var cart = await cartService.getCartIfExists(user);
         if (cart is null)
-            return TypedResults.NoContent();
+            return TypedResults.NotFound();
         return TypedResults.Ok(cart);
     }
     catch (Exception ex)
@@ -190,9 +197,25 @@ static async Task<IResult> CancelCart(HttpContext context, CartService cartServi
     return TypedResults.InternalServerError();
 }
 
-static async Task<IResult> CheckOutCart()
+static async Task<IResult> CheckOutCart(HttpContext context, CartService cartService)
 {
-    return TypedResults.Ok("Hello World");
+    var email = context.User.FindFirst("Email")?.Value;
+    if (string.IsNullOrEmpty(email))
+        return TypedResults.Unauthorized();
+    try
+    {
+        var oldCart = await cartService.checkOutCart(email);
+        return TypedResults.Ok(oldCart);
+    }
+    catch (Exception ex)
+    {
+        if (ex is KeyNotFoundException)
+            return TypedResults.NotFound("Cart or user not found");
+        if (ex is InvalidOperationException)
+            return TypedResults.BadRequest("It was not possible to create an order from this cart.");
+        return TypedResults.InternalServerError(ex.Message);
+    }
+    return TypedResults.InternalServerError();
 }
 
 app.Run();

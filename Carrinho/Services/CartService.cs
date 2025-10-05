@@ -1,3 +1,6 @@
+using System.Text;
+using System.Text.Json;
+
 namespace Carrinho.Services;
 using Microsoft.EntityFrameworkCore;
 using Carrinho.DTO;
@@ -6,10 +9,12 @@ public class CartService
 {
     private readonly UserDb _userDb;
     private readonly CartDb _cartDb;
-    public CartService(UserDb userDb, CartDb cartDb)
+    private readonly IHttpClientFactory _httpClientFactory;
+    public CartService(UserDb userDb, CartDb cartDb, IHttpClientFactory httpClientFactory)
     {
        _userDb = userDb;
        _cartDb = cartDb;
+       _httpClientFactory = httpClientFactory;
     }
 
     public async Task<Cart?> getCartIfExists(User user)
@@ -81,5 +86,35 @@ public class CartService
         cart.Items = newCartItems;
         await _cartDb.SaveChangesAsync();
         return cart;
+    }
+
+    public async Task<Cart> checkOutCart(string email)
+    {
+        var user = await getUser(email);
+        var oldCart = await this.getCartIfExists(user);
+        if (oldCart is null || oldCart.Items is null)
+        {
+            throw new InvalidOperationException("No active cart found.");
+        }
+        var client = _httpClientFactory.CreateClient("OrderService");
+
+        var payload = new
+        {
+            userId = user.Id,
+            items = oldCart.Items.Select(i => new {productId = i.ProductId, quantity = i.Quantity, unitPrice = i.UnitPrice}),
+        };
+        
+        var json = JsonSerializer.Serialize(payload);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await client.PostAsync("/orders", content);
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync();
+            throw new Exception(errorBody);
+            throw new InvalidOperationException("It was not possible to create a new order.");
+        }
+        oldCart.Status = "Finished";
+        await _cartDb.SaveChangesAsync();
+        return oldCart;
     }
 }
