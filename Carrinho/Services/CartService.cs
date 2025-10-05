@@ -12,7 +12,7 @@ public class CartService
        _cartDb = cartDb;
     }
 
-    public async Task<Cart> getCartIfExists(User user)
+    public async Task<Cart?> getCartIfExists(User user)
     {
         var cart = await _cartDb.Cart.Include(c => c.Items).Where(c => c.Status == "Active" && c.UserId == user.Id).FirstOrDefaultAsync();
         if (cart is null)

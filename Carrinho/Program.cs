@@ -100,15 +100,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var cartMapping = app.MapGroup("/cart");
+var apiVersionOneMapping = app.MapGroup("/api/v1");
+var cartMapping = apiVersionOneMapping.MapGroup("/cart");
 
-cartMapping.MapGet("/", getCart).RequireAuthorization("user_email");
-cartMapping.MapPost("/", createCart).RequireAuthorization("user_email");
-//You can see that it is not restful here
-cartMapping.MapPatch("/cart-items", addToCart).RequireAuthorization("user_email");
-cartMapping.MapPatch("/cancel", cancelCart).RequireAuthorization("user_email");
+cartMapping.MapGet("/", GetCart).RequireAuthorization("user_email");
+cartMapping.MapPost("/", CreateCart).RequireAuthorization("user_email");
+cartMapping.MapPatch("/cart-items", AddToCart).RequireAuthorization("user_email");
+cartMapping.MapPatch("/cancel", CancelCart).RequireAuthorization("user_email");
 
-static async Task<IResult> getCart(HttpContext context, CartService cartService)
+static async Task<IResult> GetCart(HttpContext context, CartService cartService)
 {
     var email = context.User.FindFirst("Email")?.Value;
     if (string.IsNullOrEmpty(email))
@@ -130,7 +130,7 @@ static async Task<IResult> getCart(HttpContext context, CartService cartService)
 }
 
 //Two exceptions might happen inside which might be handled by a middleware
-static async Task<IResult> createCart(HttpContext context, CartDto cartDto, CartService cartService)
+static async Task<IResult> CreateCart(HttpContext context, CartDto cartDto, CartService cartService)
 {
     var email = context.User.FindFirst("Email")?.Value;
     if (string.IsNullOrEmpty(email))
@@ -152,7 +152,7 @@ static async Task<IResult> createCart(HttpContext context, CartDto cartDto, Cart
     return TypedResults.InternalServerError();
 }
 //TODO create exceptions for user not found or cart not found
-static async Task<IResult> addToCart(HttpContext context, CartItemDto[] cartItems, CartService cartService)
+static async Task<IResult> AddToCart(HttpContext context, CartItemDto[] cartItems, CartService cartService)
 {
     var email = context.User.FindFirst("Email")?.Value;
     if (string.IsNullOrEmpty(email))
@@ -171,7 +171,7 @@ static async Task<IResult> addToCart(HttpContext context, CartItemDto[] cartItem
     return TypedResults.InternalServerError();
 }
 
-static async Task<IResult> cancelCart(HttpContext context, CartService cartService)
+static async Task<IResult> CancelCart(HttpContext context, CartService cartService)
 {
     var email = context.User.FindFirst("Email")?.Value;
     if (string.IsNullOrEmpty(email))
@@ -183,14 +183,14 @@ static async Task<IResult> cancelCart(HttpContext context, CartService cartServi
     }
     catch (Exception ex)
     {
-        return TypedResults.InternalServerError(ex.Message);
         if (ex is KeyNotFoundException)
             return TypedResults.NotFound("Cart or user not found");
+        return TypedResults.InternalServerError(ex.Message);
     }
     return TypedResults.InternalServerError();
 }
 
-static async Task<IResult> checkOutCart()
+static async Task<IResult> CheckOutCart()
 {
     return TypedResults.Ok("Hello World");
 }
