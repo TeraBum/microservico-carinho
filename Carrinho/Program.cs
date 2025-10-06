@@ -45,7 +45,7 @@ builder.Services.AddAuthentication().AddJwtBearer(options =>
 });
 builder.Services.AddHttpClient("OrderService", httpClient =>
 {
-    httpClient.BaseAddress = new Uri("http://localhost:3004/order"); //might have to change this later
+    httpClient.BaseAddress = new Uri("http://localhost:5050/orders"); //might have to change this later
 
     httpClient.DefaultRequestHeaders.Add(
         HeaderNames.Accept, "application/json");
